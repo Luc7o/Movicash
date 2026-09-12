@@ -1,0 +1,44 @@
+# ============================================================
+# MoviCash — .gitignore raíz
+# ============================================================
+
+# ---------- SECRETOS: nunca subir esto ----------
+.env
+.env.*
+!.env.example
+**/*.pem
+**/*.key
+
+# ---------- Backend (Node.js / TypeScript) ----------
+backend/node_modules/
+backend/dist/
+backend/*.log
+backend/npm-debug.log*
+
+# ---------- Frontend (Flutter / Dart) ----------
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/.packages
+frontend/.pub-cache/
+frontend/.pub/
+frontend/build/
+frontend/**/android/**/gradle-wrapper.jar
+frontend/**/android/.gradle
+frontend/**/android/captures/
+frontend/**/android/local.properties
+frontend/**/android/key.properties
+frontend/**/ios/Flutter/.last_build_id
+frontend/**/ios/Pods/
+frontend/**/ios/.symlinks/
+frontend/**/linux/flutter/ephemeral
+frontend/**/macos/Flutter/ephemeral
+frontend/**/windows/flutter/ephemeral
+frontend/*.iml
+frontend/.idea/
+
+# ---------- Sistema operativo / editor ----------
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
