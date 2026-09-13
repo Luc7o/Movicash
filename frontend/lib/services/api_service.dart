@@ -23,6 +23,16 @@ class ApiService {
     return _handle(res);
   }
 
+  /// GET sin token: se usa antes de tener sesión (ej. consultar DNI en
+  /// el registro).
+  static Future<dynamic> _getPublico(String path) async {
+    final res = await http.get(
+      Uri.parse('$_baseUrl$path'),
+      headers: const {'Content-Type': 'application/json'},
+    );
+    return _handle(res);
+  }
+
   static Future<dynamic> _post(String path, Map<String, dynamic> body) async {
     final res = await http.post(
       Uri.parse('$_baseUrl$path'),
@@ -74,6 +84,15 @@ class ApiService {
   static Future<dynamic> misSolicitudesMarketplace() => _get('/marketplace/mis-solicitudes');
   static Future<dynamic> solicitarEnMarketplace(String entidadId, double monto) =>
       _post('/marketplace/solicitudes', {'entidadId': entidadId, 'monto': monto});
+
+  // -------- RENIEC (verificación/autocompletado por DNI) --------
+  /// Devuelve { dni, nombres, apellidoPaterno, apellidoMaterno, nombreCompleto }
+  /// o lanza una excepción con el mensaje de error del backend
+  /// (ej. "No encontramos ese DNI en RENIEC").
+  static Future<Map<String, dynamic>> consultarDni(String dni) async {
+    final data = await _getPublico('/reniec/$dni');
+    return Map<String, dynamic>.from(data as Map);
+  }
 
   // -------- Perfil --------
   static Future<dynamic> obtenerPerfil() => _get('/perfil');

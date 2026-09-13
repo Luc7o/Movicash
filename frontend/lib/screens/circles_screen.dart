@@ -168,9 +168,9 @@ class _CirclesScreenState extends State<CirclesScreen> {
                     return Card(
                       margin: const EdgeInsets.only(bottom: 10),
                       child: ListTile(
-                        leading: const CircleAvatar(
-                          backgroundColor: Color(0x224CBFA4),
-                          child: Icon(Icons.groups_outlined, color: MoviCashColors.verdeMenta),
+                        leading: CircleAvatar(
+                          backgroundColor: MoviCashColors.verdeMenta.withOpacity(0.13),
+                          child: const Icon(Icons.groups_outlined, color: MoviCashColors.verdeMenta),
                         ),
                         title: Text(circulo?['nombre'] ?? 'Círculo'),
                         subtitle: Text('S/ ${circulo?['monto_por_turno'] ?? '-'} por turno'),
@@ -193,9 +193,9 @@ class _CirclesScreenState extends State<CirclesScreen> {
                   ..._disponibles.where((c) => !idsUnidos.contains(c['id'])).map((c) => Card(
                         margin: const EdgeInsets.only(bottom: 10),
                         child: ListTile(
-                          leading: const CircleAvatar(
-                            backgroundColor: Color(0x228B7FD6),
-                            child: Icon(Icons.groups_outlined, color: MoviCashColors.lilaInnovacion),
+                          leading: CircleAvatar(
+                            backgroundColor: MoviCashColors.lilaInnovacion.withOpacity(0.13),
+                            child: const Icon(Icons.groups_outlined, color: MoviCashColors.lilaInnovacion),
                           ),
                           title: Text(c['nombre']),
                           subtitle: Text('${c['gremio'] ?? ''} • S/ ${c['monto_por_turno']} por turno'),

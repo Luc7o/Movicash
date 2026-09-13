@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../services/api_service.dart';
-import '../config/supabase_config.dart';
+import '../services/auth_service.dart';
 import 'home_screen.dart';
 
 class CompleteProfileScreen extends StatefulWidget {
@@ -13,8 +13,6 @@ class CompleteProfileScreen extends StatefulWidget {
 
 class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nombreCtrl = TextEditingController();
-  final _dniCtrl = TextEditingController();
   final _ubicacionCtrl = TextEditingController();
   String? _ocupacion;
   bool _aceptaTerminos = false;
@@ -45,8 +43,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     setState(() => _guardando = true);
     try {
       await ApiService.crearPerfil({
-        'nombre': _nombreCtrl.text.trim(),
-        'dni': _dniCtrl.text.trim(),
+        'nombre': AuthService.nombreActual ?? '',
+        'dni': AuthService.dniActual ?? '',
         'ubicacion': _ubicacionCtrl.text.trim(),
         'ocupacion': _ocupacion ?? '',
       });
@@ -64,7 +62,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final email = supabase.auth.currentUser?.email ?? '';
+    final nombre = AuthService.nombreActual ?? '';
+    final dni = AuthService.dniActual ?? '';
 
     return Scaffold(
       backgroundColor: MoviCashColors.fondoClaro,
@@ -94,53 +93,46 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               ),
               const SizedBox(height: 6),
               const Text(
-                'Esto nos ayuda a verificarte y ofrecerte mejores condiciones de crédito desde el inicio.',
+                'Ya verificamos tu identidad con RENIEC. Solo faltan un par de datos para ofrecerte mejores condiciones de crédito.',
                 style: TextStyle(color: MoviCashColors.textoGris),
               ),
               const SizedBox(height: 24),
 
-              // ---- Tarjeta: datos personales ----
+              // ---- Tarjeta: identidad ya verificada ----
               _seccion(
-                titulo: 'Datos personales',
-                icon: Icons.person_outline,
+                titulo: 'Identidad verificada',
+                icon: Icons.verified_user_outlined,
                 children: [
-                  if (email.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 14),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.email_outlined, size: 18, color: MoviCashColors.textoGris),
-                          const SizedBox(width: 8),
-                          Text('Cuenta: $email',
-                              style: const TextStyle(color: MoviCashColors.textoGris, fontSize: 13)),
-                          const SizedBox(width: 6),
-                          const Icon(Icons.check_circle, size: 16, color: MoviCashColors.verdeMenta),
-                        ],
+                  Row(
+                    children: [
+                      const Icon(Icons.check_circle, size: 18, color: MoviCashColors.verdeMenta),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          nombre.isNotEmpty ? nombre : 'Nombre no disponible',
+                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                        ),
                       ),
-                    ),
-                  TextFormField(
-                    controller: _nombreCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Nombre completo',
-                      prefixIcon: Icon(Icons.badge_outlined),
-                    ),
-                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Ingresa tu nombre completo' : null,
+                    ],
                   ),
-                  const SizedBox(height: 14),
-                  TextFormField(
-                    controller: _dniCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(
-                      labelText: 'DNI',
-                      prefixIcon: Icon(Icons.credit_card_outlined),
-                    ),
-                    validator: (v) {
-                      if (v == null || v.trim().isEmpty) return 'Ingresa tu DNI';
-                      if (v.trim().length != 8) return 'El DNI debe tener 8 dígitos';
-                      return null;
-                    },
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(Icons.credit_card_outlined, size: 16, color: MoviCashColors.textoGris),
+                      const SizedBox(width: 8),
+                      Text('DNI $dni', style: const TextStyle(color: MoviCashColors.textoGris, fontSize: 13)),
+                    ],
                   ),
-                  const SizedBox(height: 14),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // ---- Tarjeta: datos adicionales ----
+              _seccion(
+                titulo: 'Datos adicionales',
+                icon: Icons.location_on_outlined,
+                children: [
                   TextFormField(
                     controller: _ubicacionCtrl,
                     decoration: const InputDecoration(
@@ -198,14 +190,14 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.08),
+                    color: MoviCashColors.error.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.error_outline, color: Colors.redAccent, size: 18),
+                      const Icon(Icons.error_outline, color: MoviCashColors.error, size: 18),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(_error!, style: const TextStyle(color: Colors.redAccent, fontSize: 13))),
+                      Expanded(child: Text(_error!, style: const TextStyle(color: MoviCashColors.error, fontSize: 13))),
                     ],
                   ),
                 ),
@@ -217,9 +209,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 height: 52,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: MoviCashColors.lilaInnovacion,
+                    backgroundColor: MoviCashColors.verdeMenta,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: MoviCashColors.lilaInnovacion.withOpacity(0.5),
+                    disabledBackgroundColor: MoviCashColors.verdeMenta.withOpacity(0.5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   onPressed: _guardando ? null : _continuar,
                   child: _guardando
@@ -229,7 +222,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.4),
                         )
                       : const Text('Empezar a usar MoviCash',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                 ),
               ),
             ],

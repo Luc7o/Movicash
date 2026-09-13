@@ -1,64 +1,152 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-/// Paleta oficial de MoviCash (tal cual aparece en el mockup)
+/// Paleta oficial de MoviCash — alineada al Design System de Stitch
+/// (ver movicash_design_system/DESIGN.md).
 class MoviCashColors {
-  static const verdeMenta = Color(0xFF4CBFA4); // Confianza
-  static const lilaInnovacion = Color(0xFF8B7FD6); // Innovación
-  static const amarilloPastel = Color(0xFFF2C46D); // Progreso
-  static const celesteSeguridad = Color(0xFF6FB6D9); // Seguridad
-  static const rosaComunidad = Color(0xFFE08A9B); // Comunidad
+  // Acentos de marca / funcionales
+  static const verdeMenta = Color(0xFF059669); // Acción principal: crédito, pagos
+  static const verdeMentaClaro = Color(0xFF34D399);
+  static const lilaInnovacion = Color(0xFF7C3AED); // Identidad, MoviScore, navegación
+  static const lilaClaro = Color(0xFFEDE9FE);
+  static const amarilloPastel = Color(0xFFF59E0B); // Progreso diario, alertas suaves
+  static const amarilloClaro = Color(0xFFFEF3C7);
+  static const celesteSeguridad = Color(0xFF0284C7); // Seguridad, verificación
+  static const celesteClaro = Color(0xFFE0F2FE);
+  static const rosaComunidad = Color(0xFFDB2777); // Círculos de ahorro / comunidad
+  static const rosaClaro = Color(0xFFFDF2F8);
 
-  static const fondoClaro = Color(0xFFF7F8FC);
-  static const textoOscuro = Color(0xFF1F2430);
-  static const textoGris = Color(0xFF767C8C);
+  // Fondos y superficies
+  static const fondoClaro = Color(0xFFF8FAFC);
+  static const fondoSecundario = Color(0xFFF1F5F9);
+  static const superficieBlanca = Color(0xFFFFFFFF);
+
+  // Texto
+  static const textoOscuro = Color(0xFF0F172A);
+  static const textoGris = Color(0xFF475569);
+  static const textoGrisClaro = Color(0xFF94A3B8);
+
+  static const error = Color(0xFFBA1A1A);
 }
+
+TextTheme _buildTextTheme(TextTheme base) {
+  return GoogleFonts.plusJakartaSansTextTheme(base).copyWith(
+    headlineLarge: GoogleFonts.plusJakartaSans(
+        fontSize: 26, fontWeight: FontWeight.w700, color: MoviCashColors.textoOscuro),
+    headlineMedium: GoogleFonts.plusJakartaSans(
+        fontSize: 20, fontWeight: FontWeight.w700, color: MoviCashColors.textoOscuro),
+    headlineSmall: GoogleFonts.plusJakartaSans(
+        fontSize: 18, fontWeight: FontWeight.w600, color: MoviCashColors.textoOscuro),
+    titleMedium: GoogleFonts.plusJakartaSans(
+        fontSize: 16, fontWeight: FontWeight.w600, color: MoviCashColors.textoOscuro),
+    bodyLarge: GoogleFonts.plusJakartaSans(
+        fontSize: 15, fontWeight: FontWeight.w500, color: MoviCashColors.textoOscuro),
+    bodyMedium: GoogleFonts.plusJakartaSans(
+        fontSize: 14, fontWeight: FontWeight.w400, color: MoviCashColors.textoGris),
+    bodySmall: GoogleFonts.plusJakartaSans(
+        fontSize: 12, fontWeight: FontWeight.w400, color: MoviCashColors.textoGrisClaro),
+    labelMedium: GoogleFonts.plusJakartaSans(
+        fontSize: 13, fontWeight: FontWeight.w600, color: MoviCashColors.textoOscuro),
+    labelSmall: GoogleFonts.plusJakartaSans(
+        fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.2, color: MoviCashColors.textoGris),
+  );
+}
+
+/// Estilo grande para montos en soles (S/), como pide el design system
+/// (`display-currency`, con numerales tabulares).
+TextStyle displayCurrency({double size = 38}) => GoogleFonts.plusJakartaSans(
+      fontSize: size,
+      fontWeight: FontWeight.w800,
+      height: 1.15,
+      color: MoviCashColors.textoOscuro,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
 
 final ThemeData moviCashTheme = ThemeData(
   useMaterial3: true,
   scaffoldBackgroundColor: MoviCashColors.fondoClaro,
-  primaryColor: MoviCashColors.lilaInnovacion,
+  primaryColor: MoviCashColors.verdeMenta,
   colorScheme: ColorScheme.fromSeed(
-    seedColor: MoviCashColors.lilaInnovacion,
-    primary: MoviCashColors.lilaInnovacion,
-    secondary: MoviCashColors.verdeMenta,
+    seedColor: MoviCashColors.verdeMenta,
+    primary: MoviCashColors.verdeMenta,
+    secondary: MoviCashColors.lilaInnovacion,
+    tertiary: MoviCashColors.amarilloPastel,
+    error: MoviCashColors.error,
+    surface: MoviCashColors.superficieBlanca,
   ),
-  fontFamily: 'Roboto',
-  appBarTheme: const AppBarTheme(
+  textTheme: _buildTextTheme(ThemeData.light().textTheme),
+  appBarTheme: AppBarTheme(
     backgroundColor: Colors.transparent,
     elevation: 0,
     foregroundColor: MoviCashColors.textoOscuro,
     centerTitle: false,
+    titleTextStyle: GoogleFonts.plusJakartaSans(
+        fontSize: 18, fontWeight: FontWeight.w700, color: MoviCashColors.textoOscuro),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: MoviCashColors.lilaInnovacion,
+      backgroundColor: MoviCashColors.verdeMenta,
       foregroundColor: Colors.white,
+      elevation: 0,
       padding: const EdgeInsets.symmetric(vertical: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      textStyle: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700),
+    ).copyWith(
+      shadowColor: WidgetStateProperty.all(MoviCashColors.verdeMenta.withOpacity(0.35)),
+    ),
+  ),
+  textButtonTheme: TextButtonThemeData(
+    style: TextButton.styleFrom(
+      foregroundColor: MoviCashColors.lilaInnovacion,
+      textStyle: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w600),
     ),
   ),
   cardTheme: CardThemeData(
-    color: Colors.white,
-    elevation: 3,
-    shadowColor: MoviCashColors.textoOscuro.withOpacity(0.08),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+    color: MoviCashColors.superficieBlanca,
+    elevation: 0,
+    surfaceTintColor: Colors.transparent,
+    shadowColor: MoviCashColors.textoOscuro.withOpacity(0.06),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
     margin: EdgeInsets.zero,
   ),
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
-    fillColor: Colors.white,
+    fillColor: MoviCashColors.fondoSecundario,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    labelStyle: GoogleFonts.plusJakartaSans(color: MoviCashColors.textoGris, fontSize: 14),
     border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: BorderSide(color: MoviCashColors.textoGris.withOpacity(0.25)),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide.none,
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide.none,
     ),
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-      borderSide: const BorderSide(color: MoviCashColors.lilaInnovacion, width: 1.6),
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: MoviCashColors.verdeMenta, width: 1.8),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: MoviCashColors.error, width: 1.4),
     ),
   ),
-  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+  chipTheme: ChipThemeData(
+    backgroundColor: MoviCashColors.fondoSecundario,
+    selectedColor: MoviCashColors.verdeMenta,
+    labelStyle: GoogleFonts.plusJakartaSans(fontSize: 13, fontWeight: FontWeight.w600),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(999),
+      side: const BorderSide(color: Color(0xFFE2E8F0)),
+    ),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+  ),
+  bottomNavigationBarTheme: BottomNavigationBarThemeData(
     backgroundColor: Colors.white,
     elevation: 12,
+    selectedItemColor: MoviCashColors.lilaInnovacion,
+    unselectedItemColor: MoviCashColors.textoGrisClaro,
+    selectedLabelStyle: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w700),
+    unselectedLabelStyle: GoogleFonts.plusJakartaSans(fontSize: 11, fontWeight: FontWeight.w600),
   ),
 );

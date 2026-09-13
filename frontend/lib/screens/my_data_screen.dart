@@ -44,11 +44,13 @@ class _MyDataScreenState extends State<MyDataScreen> {
   Future<void> _guardar() async {
     setState(() => _guardando = true);
     try {
+      // El DNI ya no se edita aquí: es el identificador con el que el
+      // usuario inicia sesión (verificado una sola vez contra RENIEC
+      // durante el registro).
       await ApiService.actualizarPerfil({
         'nombre': _nombreCtrl.text,
         'ubicacion': _ubicacionCtrl.text,
         'ocupacion': _ocupacionCtrl.text,
-        'dni': _dniCtrl.text,
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Datos guardados ✓')));
@@ -96,7 +98,14 @@ class _MyDataScreenState extends State<MyDataScreen> {
         children: [
           TextField(controller: _nombreCtrl, decoration: const InputDecoration(labelText: 'Nombre completo')),
           const SizedBox(height: 14),
-          TextField(controller: _dniCtrl, decoration: const InputDecoration(labelText: 'DNI')),
+          TextField(
+            controller: _dniCtrl,
+            enabled: false,
+            decoration: const InputDecoration(
+              labelText: 'DNI (verificado con RENIEC)',
+              suffixIcon: Icon(Icons.lock_outline, size: 18),
+            ),
+          ),
           const SizedBox(height: 14),
           TextField(controller: _ubicacionCtrl, decoration: const InputDecoration(labelText: 'Ubicación')),
           const SizedBox(height: 14),

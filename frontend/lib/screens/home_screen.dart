@@ -159,38 +159,59 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 16),
 
-          Card(
-            color: MoviCashColors.verdeMenta.withOpacity(0.12),
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (_creditoActivo == null) ...[
-                    const Text('Crédito disponible', style: TextStyle(color: MoviCashColors.textoGris)),
-                    Text('S/ $credMin - S/ $credMax',
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 12),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: MoviCashColors.verdeMenta),
-                        onPressed: () async {
-                          await Navigator.push(context,
-                              MaterialPageRoute(builder: (_) => const RequestCreditScreen()));
-                          _cargarDatos();
-                        },
-                        child: const Text('Solicitar crédito'),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [BoxShadow(color: MoviCashColors.textoOscuro.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 6))],
+            ),
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_creditoActivo == null) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Crédito disponible', style: TextStyle(color: MoviCashColors.textoGris)),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: MoviCashColors.verdeMenta.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: const Text('Desembolso ya',
+                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: MoviCashColors.verdeMenta)),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text('S/ $credMin – S/ $credMax', style: displayCurrency(size: 30)),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: MoviCashColors.verdeMenta,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                      ),
+                      onPressed: () async {
+                        await Navigator.push(context,
+                            MaterialPageRoute(builder: (_) => const RequestCreditScreen()));
+                        _cargarDatos();
+                      },
+                      child: const Text('Solicitar crédito  →', style: TextStyle(fontWeight: FontWeight.w700)),
                     ),
-                  ] else ...[
-                    const Text('Crédito activo', style: TextStyle(color: MoviCashColors.textoGris)),
-                    Text('S/ ${_creditoActivo!['saldo_pendiente']} pendiente',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                    Text('Pago diario sugerido: S/ ${_creditoActivo!['pago_diario_sugerido']}'),
-                  ]
-                ],
-              ),
+                  ),
+                ] else ...[
+                  const Text('Crédito activo', style: TextStyle(color: MoviCashColors.textoGris)),
+                  Text('S/ ${_creditoActivo!['saldo_pendiente']} pendiente', style: displayCurrency(size: 24)),
+                  const SizedBox(height: 4),
+                  Text('Pago diario sugerido: S/ ${_creditoActivo!['pago_diario_sugerido']}',
+                      style: const TextStyle(color: MoviCashColors.textoGris)),
+                ]
+              ],
             ),
           ),
           const SizedBox(height: 20),
@@ -198,13 +219,13 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _accesoRapido(Icons.account_balance_wallet_outlined, 'Mi crédito', () async {
+              _accesoRapido(Icons.account_balance_wallet_outlined, 'Mi crédito', MoviCashColors.verdeMenta, () async {
                 await Navigator.push(context, MaterialPageRoute(builder: (_) => const MyCreditScreen()));
                 _cargarDatos();
               }),
-              _accesoRapido(Icons.groups_outlined, 'Círculos de\nahorro',
+              _accesoRapido(Icons.groups_outlined, 'Círculos de\nahorro', MoviCashColors.lilaInnovacion,
                   () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CirclesScreen()))),
-              _accesoRapido(Icons.speed_outlined, 'MoviScore',
+              _accesoRapido(Icons.speed_outlined, 'MoviScore', MoviCashColors.amarilloPastel,
                   () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MoviscoreScreen()))),
             ],
           ),
@@ -254,18 +275,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _accesoRapido(IconData icon, String label, VoidCallback onTap) {
+  Widget _accesoRapido(IconData icon, String label, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
         children: [
           CircleAvatar(
             radius: 26,
-            backgroundColor: MoviCashColors.lilaInnovacion.withOpacity(0.12),
-            child: Icon(icon, color: MoviCashColors.lilaInnovacion),
+            backgroundColor: color.withOpacity(0.14),
+            child: Icon(icon, color: color),
           ),
           const SizedBox(height: 6),
-          Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+          Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         ],
       ),
     );

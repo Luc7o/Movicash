@@ -26,9 +26,12 @@ class ProfileScreen extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(user?.userMetadata?['nombre'] ?? 'Usuario MoviCash',
+                  Text(AuthService.nombreActual ?? user?.userMetadata?['nombre'] ?? 'Usuario MoviCash',
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text(user?.email ?? '', style: const TextStyle(color: MoviCashColors.textoGris)),
+                  Text(
+                    AuthService.dniActual != null ? 'DNI ${AuthService.dniActual}' : '',
+                    style: const TextStyle(color: MoviCashColors.textoGris),
+                  ),
                 ],
               ),
             ],

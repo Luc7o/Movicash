@@ -7,6 +7,7 @@ import circlesRoutes from './routes/circles.routes';
 import moviscoreRoutes from './routes/moviscore.routes';
 import marketplaceRoutes from './routes/marketplace.routes';
 import profileRoutes from './routes/profile.routes';
+import reniecRoutes from './routes/reniec.routes';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use('/api/circulos', circlesRoutes);
 app.use('/api/moviscore', moviscoreRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/perfil', profileRoutes);
+app.use('/api/reniec', reniecRoutes);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
