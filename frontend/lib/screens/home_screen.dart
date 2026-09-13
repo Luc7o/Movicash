@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
-import '../config/supabase_config.dart';
 import '../services/api_service.dart';
 import '../widgets/bottom_nav.dart';
 import 'request_credit_screen.dart';
@@ -22,7 +21,9 @@ class _HomeScreenState extends State<HomeScreen> {
   int _tab = 0;
   Map<String, dynamic>? _moviscore;
   Map<String, dynamic>? _creditoActivo;
+  Map<String, dynamic>? _perfil;
   bool _cargando = true;
+  String? _error;
 
   @override
   void initState() {
@@ -31,16 +32,22 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _cargarDatos() async {
-    setState(() => _cargando = true);
+    setState(() {
+      _cargando = true;
+      _error = null;
+    });
     try {
+      final perfil = await ApiService.obtenerPerfil();
       final score = await ApiService.obtenerMoviscore();
       final credito = await ApiService.creditoActivo();
+      if (!mounted) return;
       setState(() {
+        _perfil = perfil;
         _moviscore = score;
         _creditoActivo = credito;
       });
-    } catch (_) {
-      // en producción: mostrar snackbar de error / reintentar
+    } catch (e) {
+      if (mounted) setState(() => _error = '$e');
     } finally {
       if (mounted) setState(() => _cargando = false);
     }
@@ -48,10 +55,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final nombre = supabase.auth.currentUser?.userMetadata?['nombre'] ?? 'Carlos';
-
     final pantallas = [
-      _buildHome(nombre),
+      _buildHome(),
       const MovementsScreen(),
       const CommunityScreen(),
       const ProfileScreen(),
@@ -66,9 +71,32 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHome(String nombre) {
+  Widget _buildHome() {
     if (_cargando) return const Center(child: CircularProgressIndicator());
 
+    if (_error != null && _moviscore == null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.wifi_off_rounded, size: 40, color: MoviCashColors.textoGris),
+              const SizedBox(height: 12),
+              const Text('No pudimos conectar con MoviCash', textAlign: TextAlign.center),
+              const SizedBox(height: 6),
+              Text(_error!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: MoviCashColors.textoGris, fontSize: 12)),
+              const SizedBox(height: 16),
+              ElevatedButton(onPressed: _cargarDatos, child: const Text('Reintentar')),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final nombre = (_perfil?['nombre'] as String?)?.split(' ').first ?? 'ahí';
     final score = _moviscore?['moviscore_actual'] ?? 500;
     final nivel = _moviscore?['nivel_moviscore'] ?? 'Nuevo';
     final credMin = (_moviscore?['credito_disponible_min'] ?? 50).toString();
@@ -77,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return RefreshIndicator(
       onRefresh: _cargarDatos,
       child: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -95,7 +123,6 @@ class _HomeScreenState extends State<HomeScreen> {
           const Text('¡Qué bueno verte de nuevo!', style: TextStyle(color: MoviCashColors.textoGris)),
           const SizedBox(height: 20),
 
-          // Card MoviScore
           GestureDetector(
             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MoviscoreScreen())),
             child: Card(
@@ -132,7 +159,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Card Crédito disponible / activo
           Card(
             color: MoviCashColors.verdeMenta.withOpacity(0.12),
             child: Padding(
@@ -169,12 +195,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 20),
 
-          // Accesos rápidos
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _accesoRapido(Icons.account_balance_wallet_outlined, 'Mi crédito',
-                  () async {
+              _accesoRapido(Icons.account_balance_wallet_outlined, 'Mi crédito', () async {
                 await Navigator.push(context, MaterialPageRoute(builder: (_) => const MyCreditScreen()));
                 _cargarDatos();
               }),

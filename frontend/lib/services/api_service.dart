@@ -32,6 +32,15 @@ class ApiService {
     return _handle(res);
   }
 
+  static Future<dynamic> _put(String path, Map<String, dynamic> body) async {
+    final res = await http.put(
+      Uri.parse('$_baseUrl$path'),
+      headers: await _headers(),
+      body: jsonEncode(body),
+    );
+    return _handle(res);
+  }
+
   static dynamic _handle(http.Response res) {
     final decoded = res.body.isNotEmpty ? jsonDecode(res.body) : null;
     if (res.statusCode >= 200 && res.statusCode < 300) return decoded;
@@ -57,4 +66,19 @@ class ApiService {
       _post('/circulos/$circuloId/unirse', {});
   static Future<dynamic> aportarACirculo(String circuloId, double monto) =>
       _post('/circulos/$circuloId/aportar', {'monto': monto});
+  static Future<dynamic> crearCirculo(String nombre, String gremio, double montoPorTurno) =>
+      _post('/circulos', {'nombre': nombre, 'gremio': gremio, 'montoPorTurno': montoPorTurno});
+
+  // -------- Marketplace --------
+  static Future<dynamic> entidadesMarketplace() => _get('/marketplace/entidades');
+  static Future<dynamic> misSolicitudesMarketplace() => _get('/marketplace/mis-solicitudes');
+  static Future<dynamic> solicitarEnMarketplace(String entidadId, double monto) =>
+      _post('/marketplace/solicitudes', {'entidadId': entidadId, 'monto': monto});
+
+  // -------- Perfil --------
+  static Future<dynamic> obtenerPerfil() => _get('/perfil');
+  static Future<dynamic> crearPerfil(Map<String, dynamic> campos) => _post('/perfil', campos);
+  static Future<dynamic> actualizarPerfil(Map<String, dynamic> campos) => _put('/perfil', campos);
+  static Future<dynamic> guardarFotoDni(String storagePath) =>
+      _post('/perfil/dni', {'storagePath': storagePath});
 }

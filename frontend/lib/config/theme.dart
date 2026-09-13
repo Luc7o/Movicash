@@ -40,8 +40,25 @@ final ThemeData moviCashTheme = ThemeData(
   ),
   cardTheme: CardThemeData(
     color: Colors.white,
-    elevation: 0,
+    elevation: 3,
+    shadowColor: MoviCashColors.textoOscuro.withOpacity(0.08),
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
     margin: EdgeInsets.zero,
+  ),
+  inputDecorationTheme: InputDecorationTheme(
+    filled: true,
+    fillColor: Colors.white,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: MoviCashColors.textoGris.withOpacity(0.25)),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: const BorderSide(color: MoviCashColors.lilaInnovacion, width: 1.6),
+    ),
+  ),
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+    backgroundColor: Colors.white,
+    elevation: 12,
   ),
 );

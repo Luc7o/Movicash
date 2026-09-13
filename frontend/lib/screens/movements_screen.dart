@@ -80,7 +80,7 @@ class _MovementsScreenState extends State<MovementsScreen> with SingleTickerProv
           margin: const EdgeInsets.only(bottom: 10),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: MoviCashColors.lilaInnovacion.withOpacity(0.12),
+              backgroundColor: MoviCashColors.lilaInnovacion.withValues(alpha: 0.12),
               child: const Icon(Icons.account_balance_wallet_outlined, color: MoviCashColors.lilaInnovacion),
             ),
             title: Text('Crédito S/ ${c['monto']}', style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -111,7 +111,7 @@ class _MovementsScreenState extends State<MovementsScreen> with SingleTickerProv
           margin: const EdgeInsets.only(bottom: 10),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: MoviCashColors.verdeMenta.withOpacity(0.12),
+              backgroundColor: MoviCashColors.verdeMenta.withValues(alpha: 0.12),
               child: const Icon(Icons.savings_outlined, color: MoviCashColors.verdeMenta),
             ),
             title: Text(circulo?['nombre'] ?? 'Círculo de ahorro'),

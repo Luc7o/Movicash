@@ -83,7 +83,7 @@ class _MyCreditScreenState extends State<MyCreditScreen> {
                                 const Spacer(),
                                 Chip(
                                   label: const Text('En curso'),
-                                  backgroundColor: MoviCashColors.amarilloPastel.withOpacity(0.25),
+                                  backgroundColor: MoviCashColors.amarilloPastel.withValues(alpha: 0.25),
                                 ),
                               ],
                             ),
@@ -109,7 +109,7 @@ class _MyCreditScreenState extends State<MyCreditScreen> {
                               child: LinearProgressIndicator(
                                 value: _progreso(),
                                 minHeight: 8,
-                                backgroundColor: MoviCashColors.lilaInnovacion.withOpacity(0.15),
+                                backgroundColor: MoviCashColors.lilaInnovacion.withValues(alpha: 0.15),
                                 valueColor: const AlwaysStoppedAnimation(MoviCashColors.lilaInnovacion),
                               ),
                             ),
@@ -128,7 +128,7 @@ class _MyCreditScreenState extends State<MyCreditScreen> {
                     ),
                   ] else ...[
                     Card(
-                      color: MoviCashColors.verdeMenta.withOpacity(0.1),
+                      color: MoviCashColors.verdeMenta.withValues(alpha: 0.1),
                       child: Padding(
                         padding: const EdgeInsets.all(18),
                         child: Column(
@@ -169,15 +169,15 @@ class _MyCreditScreenState extends State<MyCreditScreen> {
                         margin: const EdgeInsets.only(bottom: 10),
                         child: ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: MoviCashColors.amarilloPastel.withOpacity(0.25),
+                            backgroundColor: MoviCashColors.amarilloPastel.withValues(alpha: 0.25),
                             child: const Icon(Icons.account_balance_wallet_outlined,
                                 color: MoviCashColors.textoOscuro, size: 20),
                           ),
-                          title: Text('Crédito completado'),
+                          title: const Text('Crédito completado'),
                           subtitle: Text('S/ ${c['monto']}  •  ${c['fecha_inicio']}'),
                           trailing: Chip(
                             label: const Text('Pagado'),
-                            backgroundColor: MoviCashColors.verdeMenta.withOpacity(0.15),
+                            backgroundColor: MoviCashColors.verdeMenta.withValues(alpha: 0.15),
                             labelStyle: const TextStyle(color: MoviCashColors.verdeMenta),
                           ),
                         ),

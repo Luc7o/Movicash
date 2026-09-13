@@ -3,6 +3,9 @@ import '../config/theme.dart';
 import '../config/supabase_config.dart';
 import '../services/auth_service.dart';
 import 'login_screen.dart';
+import 'my_data_screen.dart';
+import 'settings_screen.dart';
+import 'help_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -31,9 +34,15 @@ class ProfileScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          _opcion(Icons.badge_outlined, 'Mis datos'),
-          _opcion(Icons.settings_outlined, 'Configuración'),
-          _opcion(Icons.help_outline, 'Ayuda'),
+          _opcion(context, Icons.badge_outlined, 'Mis datos', () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const MyDataScreen()));
+          }),
+          _opcion(context, Icons.settings_outlined, 'Configuración', () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen()));
+          }),
+          _opcion(context, Icons.help_outline, 'Ayuda', () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpScreen()));
+          }),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.redAccent),
             title: const Text('Cerrar sesión', style: TextStyle(color: Colors.redAccent)),
@@ -52,11 +61,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _opcion(IconData icon, String label) {
+  Widget _opcion(BuildContext context, IconData icon, String label, VoidCallback onTap) {
     return ListTile(
       leading: Icon(icon, color: MoviCashColors.textoGris),
       title: Text(label),
       trailing: const Icon(Icons.chevron_right),
+      onTap: onTap,
     );
   }
 }

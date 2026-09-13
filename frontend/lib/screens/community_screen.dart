@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import 'circles_screen.dart';
+import 'marketplace_screen.dart';
 
 class CommunityScreen extends StatelessWidget {
   const CommunityScreen({super.key});
@@ -20,22 +21,34 @@ class CommunityScreen extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _beneficio(Icons.account_balance_wallet_outlined, 'Acceso a\ncréditos',
-                    MoviCashColors.verdeMenta),
+                child: GestureDetector(
+                  onTap: () => Navigator.push(
+                      context, MaterialPageRoute(builder: (_) => const MarketplaceScreen())),
+                  child: _beneficio(Icons.account_balance_wallet_outlined, 'Acceso a\ncréditos',
+                      MoviCashColors.verdeMenta),
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _beneficio(Icons.groups_outlined, 'Mejores\ncondiciones', MoviCashColors.lilaInnovacion),
+                child: GestureDetector(
+                  onTap: () =>
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const CirclesScreen())),
+                  child: _beneficio(Icons.groups_outlined, 'Mejores\ncondiciones', MoviCashColors.lilaInnovacion),
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: _beneficio(Icons.verified_outlined, 'Más\nconfianza', MoviCashColors.celesteSeguridad),
+                child: GestureDetector(
+                  onTap: () => Navigator.push(
+                      context, MaterialPageRoute(builder: (_) => const MarketplaceScreen())),
+                  child: _beneficio(Icons.verified_outlined, 'Más\nconfianza', MoviCashColors.celesteSeguridad),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 24),
           Card(
-            color: MoviCashColors.rosaComunidad.withOpacity(0.12),
+            color: MoviCashColors.rosaComunidad.withValues(alpha: 0.12),
             child: Padding(
               padding: const EdgeInsets.all(18),
               child: Column(
@@ -68,7 +81,7 @@ class CommunityScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
