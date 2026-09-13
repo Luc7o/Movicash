@@ -28,8 +28,8 @@ router.post('/', async (req: AuthedRequest, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
   try {
     const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(req.userId!);
-    const telefono = authUser?.user?.phone ?? '';
-    const perfil = await crearPerfil(req.userId!, telefono, parsed.data);
+    const email = authUser?.user?.email ?? '';
+    const perfil = await crearPerfil(req.userId!, email, parsed.data);
     res.status(201).json(perfil);
   } catch (e: any) {
     res.status(400).json({ error: e.message });

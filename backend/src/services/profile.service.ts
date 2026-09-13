@@ -16,7 +16,7 @@ export async function obtenerPerfil(usuarioId: string) {
  * a propósito, así que esto SIEMPRE pasa por el backend con la
  * service_role key.
  */
-export async function crearPerfil(usuarioId: string, telefono: string, campos: {
+export async function crearPerfil(usuarioId: string, email: string, campos: {
   nombre: string;
   dni?: string;
   ubicacion?: string;
@@ -26,7 +26,7 @@ export async function crearPerfil(usuarioId: string, telefono: string, campos: {
     .from('usuarios')
     .upsert({
       id: usuarioId,
-      telefono,
+      email,
       nombre: campos.nombre,
       dni: campos.dni,
       ubicacion: campos.ubicacion,

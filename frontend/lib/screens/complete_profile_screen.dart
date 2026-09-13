@@ -64,7 +64,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final telefono = supabase.auth.currentUser?.phone ?? '';
+    final email = supabase.auth.currentUser?.email ?? '';
 
     return Scaffold(
       backgroundColor: MoviCashColors.fondoClaro,
@@ -104,14 +104,14 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 titulo: 'Datos personales',
                 icon: Icons.person_outline,
                 children: [
-                  if (telefono.isNotEmpty)
+                  if (email.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 14),
                       child: Row(
                         children: [
-                          const Icon(Icons.phone_outlined, size: 18, color: MoviCashColors.textoGris),
+                          const Icon(Icons.email_outlined, size: 18, color: MoviCashColors.textoGris),
                           const SizedBox(width: 8),
-                          Text('Verificado: $telefono',
+                          Text('Cuenta: $email',
                               style: const TextStyle(color: MoviCashColors.textoGris, fontSize: 13)),
                           const SizedBox(width: 6),
                           const Icon(Icons.check_circle, size: 16, color: MoviCashColors.verdeMenta),

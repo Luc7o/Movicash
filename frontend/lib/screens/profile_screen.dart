@@ -28,7 +28,7 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   Text(user?.userMetadata?['nombre'] ?? 'Usuario MoviCash',
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text(user?.phone ?? '', style: const TextStyle(color: MoviCashColors.textoGris)),
+                  Text(user?.email ?? '', style: const TextStyle(color: MoviCashColors.textoGris)),
                 ],
               ),
             ],

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
 import '../services/auth_service.dart';
@@ -13,47 +12,45 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _telefonoCtrl = TextEditingController();
-  final _codigoCtrl = TextEditingController();
-  bool _codigoEnviado = false;
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  final _formKeyLogin = GlobalKey<FormState>();
+  final _formKeyRegistro = GlobalKey<FormState>();
+
+  final _emailLoginCtrl = TextEditingController();
+  final _passLoginCtrl = TextEditingController();
+
+  final _emailRegistroCtrl = TextEditingController();
+  final _passRegistroCtrl = TextEditingController();
+  final _passConfirmarCtrl = TextEditingController();
+
   bool _cargando = false;
+  bool _verPassword = false;
   String? _error;
-  int _segundosParaReenviar = 0;
-  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() => setState(() => _error = null));
+  }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _tabController.dispose();
     super.dispose();
   }
 
-  void _iniciarContador() {
-    _segundosParaReenviar = 60;
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (_segundosParaReenviar <= 1) {
-        t.cancel();
-        setState(() => _segundosParaReenviar = 0);
-      } else {
-        setState(() => _segundosParaReenviar--);
-      }
-    });
-  }
-
-  Future<void> _enviarCodigo() async {
+  Future<void> _iniciarSesion() async {
     setState(() => _error = null);
-    final telefono = _telefonoCtrl.text.trim();
-    if (telefono.isEmpty || !telefono.startsWith('+') || telefono.length < 10) {
-      setState(() => _error = 'Ingresa tu número con código de país, ej. +51987654321');
-      return;
-    }
+    if (!_formKeyLogin.currentState!.validate()) return;
+
     setState(() => _cargando = true);
     try {
-      await AuthService.enviarCodigo(telefono);
-      setState(() => _codigoEnviado = true);
-      _iniciarContador();
+      await AuthService.iniciarSesion(_emailLoginCtrl.text.trim(), _passLoginCtrl.text);
+      await _irALaPantallaCorrecta();
+    } on AuthException catch (e) {
+      setState(() => _error = _traducirError(e.message));
     } catch (e) {
       setState(() => _error = '$e');
     } finally {
@@ -61,20 +58,57 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _verificarCodigo() async {
+  Future<void> _crearCuenta() async {
     setState(() => _error = null);
-    if (_codigoCtrl.text.trim().length < 4) {
-      setState(() => _error = 'Ingresa el código completo que te enviamos');
-      return;
-    }
+    if (!_formKeyRegistro.currentState!.validate()) return;
+
     setState(() => _cargando = true);
     try {
-      await AuthService.verificarCodigo(_telefonoCtrl.text.trim(), _codigoCtrl.text.trim());
+      final res = await AuthService.registrarse(_emailRegistroCtrl.text.trim(), _passRegistroCtrl.text);
+      if (res.session == null) {
+        // El proyecto tiene activada la confirmación por correo: no hay
+        // sesión todavía hasta que el usuario haga click en el enlace.
+        setState(() {
+          _error = null;
+          _cargando = false;
+        });
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text('Confirma tu correo'),
+              content: Text(
+                  'Te enviamos un enlace de confirmación a ${_emailRegistroCtrl.text.trim()}. Ábrelo y luego vuelve aquí para iniciar sesión.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _tabController.animateTo(0);
+                    _emailLoginCtrl.text = _emailRegistroCtrl.text.trim();
+                  },
+                  child: const Text('Entendido'),
+                ),
+              ],
+            ),
+          );
+        }
+        return;
+      }
       await _irALaPantallaCorrecta();
+    } on AuthException catch (e) {
+      setState(() => _error = _traducirError(e.message));
     } catch (e) {
-      setState(() => _error = 'Código incorrecto o vencido. Inténtalo de nuevo.');
+      setState(() => _error = '$e');
+    } finally {
       if (mounted) setState(() => _cargando = false);
     }
+  }
+
+  String _traducirError(String msg) {
+    if (msg.contains('Invalid login credentials')) return 'Correo o contraseña incorrectos.';
+    if (msg.contains('User already registered')) return 'Ya existe una cuenta con ese correo. Inicia sesión.';
+    if (msg.contains('Password should be')) return 'La contraseña debe tener al menos 6 caracteres.';
+    return msg;
   }
 
   Future<void> _irALaPantallaCorrecta() async {
@@ -108,111 +142,34 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Center(child: Image.asset('assets/logo/movicash_logo.png', height: 130)),
-                  const SizedBox(height: 24),
+                  Center(child: Image.asset('assets/logo/movicash_logo.png', height: 120)),
+                  const SizedBox(height: 20),
                   Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(22),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (!_codigoEnviado) ...[
-                              Row(
-                                children: const [
-                                  Icon(Icons.phone_iphone_outlined, size: 18, color: MoviCashColors.lilaInnovacion),
-                                  SizedBox(width: 8),
-                                  Text('Ingresa tu número de celular',
-                                      style: TextStyle(fontWeight: FontWeight.w600)),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              TextField(
-                                controller: _telefonoCtrl,
-                                keyboardType: TextInputType.phone,
-                                decoration: const InputDecoration(
-                                  hintText: '+51 9XX XXX XXX',
-                                  prefixIcon: Icon(Icons.phone_outlined),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              const Text('Incluye el código de país (+51 para Perú)',
-                                  style: TextStyle(color: MoviCashColors.textoGris, fontSize: 12)),
-                              const SizedBox(height: 18),
-                              _botonPrincipal(
-                                texto: 'Enviar código',
-                                onPressed: _cargando ? null : _enviarCodigo,
-                              ),
-                            ] else ...[
-                              Row(
-                                children: const [
-                                  Icon(Icons.lock_outline, size: 18, color: MoviCashColors.lilaInnovacion),
-                                  SizedBox(width: 8),
-                                  Text('Verifica tu número', style: TextStyle(fontWeight: FontWeight.w600)),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text('Enviamos un código a ${_telefonoCtrl.text}',
-                                  style: const TextStyle(color: MoviCashColors.textoGris, fontSize: 13)),
-                              const SizedBox(height: 12),
-                              TextField(
-                                controller: _codigoCtrl,
-                                keyboardType: TextInputType.number,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 22, letterSpacing: 6, fontWeight: FontWeight.w600),
-                                decoration: const InputDecoration(hintText: '••••••'),
-                              ),
-                              const SizedBox(height: 18),
-                              _botonPrincipal(
-                                texto: 'Verificar y entrar',
-                                onPressed: _cargando ? null : _verificarCodigo,
-                              ),
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  TextButton(
-                                    onPressed: _cargando
-                                        ? null
-                                        : () => setState(() {
-                                              _codigoEnviado = false;
-                                              _codigoCtrl.clear();
-                                              _error = null;
-                                            }),
-                                    child: const Text('Cambiar número'),
-                                  ),
-                                  TextButton(
-                                    onPressed: (_cargando || _segundosParaReenviar > 0) ? null : _enviarCodigo,
-                                    child: Text(_segundosParaReenviar > 0
-                                        ? 'Reenviar en ${_segundosParaReenviar}s'
-                                        : 'Reenviar código'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                            if (_error != null) ...[
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.red.withOpacity(0.08),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.error_outline, color: Colors.redAccent, size: 16),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                        child: Text(_error!,
-                                            style: const TextStyle(color: Colors.redAccent, fontSize: 12))),
-                                  ],
-                                ),
-                              ),
-                            ],
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      children: [
+                        TabBar(
+                          controller: _tabController,
+                          labelColor: MoviCashColors.lilaInnovacion,
+                          unselectedLabelColor: MoviCashColors.textoGris,
+                          indicatorColor: MoviCashColors.lilaInnovacion,
+                          tabs: const [
+                            Tab(text: 'Iniciar sesión'),
+                            Tab(text: 'Crear cuenta'),
                           ],
                         ),
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.all(22),
+                          child: SizedBox(
+                            height: _tabController.index == 0 ? 260 : 320,
+                            child: TabBarView(
+                              controller: _tabController,
+                              physics: const NeverScrollableScrollPhysics(),
+                              children: [_formularioLogin(), _formularioRegistro()],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -224,7 +181,118 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _botonPrincipal({required String texto, required VoidCallback? onPressed}) {
+  Widget _formularioLogin() {
+    return Form(
+      key: _formKeyLogin,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextFormField(
+            controller: _emailLoginCtrl,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(labelText: 'Correo', prefixIcon: Icon(Icons.email_outlined)),
+            validator: (v) => (v == null || !v.contains('@')) ? 'Ingresa un correo válido' : null,
+          ),
+          const SizedBox(height: 14),
+          TextFormField(
+            controller: _passLoginCtrl,
+            obscureText: !_verPassword,
+            decoration: InputDecoration(
+              labelText: 'Contraseña',
+              prefixIcon: const Icon(Icons.lock_outline),
+              suffixIcon: IconButton(
+                icon: Icon(_verPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                onPressed: () => setState(() => _verPassword = !_verPassword),
+              ),
+            ),
+            validator: (v) => (v == null || v.isEmpty) ? 'Ingresa tu contraseña' : null,
+          ),
+          const SizedBox(height: 6),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () async {
+                if (_emailLoginCtrl.text.trim().isEmpty) {
+                  setState(() => _error = 'Escribe tu correo arriba primero para recuperar tu contraseña.');
+                  return;
+                }
+                await AuthService.recuperarContrasena(_emailLoginCtrl.text.trim());
+                if (mounted) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(const SnackBar(content: Text('Te enviamos un enlace para recuperar tu contraseña.')));
+                }
+              },
+              child: const Text('¿Olvidaste tu contraseña?', style: TextStyle(fontSize: 12)),
+            ),
+          ),
+          if (_error != null) _mensajeError(),
+          const SizedBox(height: 8),
+          _botonPrincipal('Iniciar sesión', _cargando ? null : _iniciarSesion),
+        ],
+      ),
+    );
+  }
+
+  Widget _formularioRegistro() {
+    return Form(
+      key: _formKeyRegistro,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextFormField(
+            controller: _emailRegistroCtrl,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(labelText: 'Correo', prefixIcon: Icon(Icons.email_outlined)),
+            validator: (v) => (v == null || !v.contains('@')) ? 'Ingresa un correo válido' : null,
+          ),
+          const SizedBox(height: 14),
+          TextFormField(
+            controller: _passRegistroCtrl,
+            obscureText: !_verPassword,
+            decoration: InputDecoration(
+              labelText: 'Contraseña',
+              prefixIcon: const Icon(Icons.lock_outline),
+              suffixIcon: IconButton(
+                icon: Icon(_verPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                onPressed: () => setState(() => _verPassword = !_verPassword),
+              ),
+            ),
+            validator: (v) => (v == null || v.length < 6) ? 'Mínimo 6 caracteres' : null,
+          ),
+          const SizedBox(height: 14),
+          TextFormField(
+            controller: _passConfirmarCtrl,
+            obscureText: !_verPassword,
+            decoration: const InputDecoration(
+                labelText: 'Confirmar contraseña', prefixIcon: Icon(Icons.lock_outline)),
+            validator: (v) => (v != _passRegistroCtrl.text) ? 'Las contraseñas no coinciden' : null,
+          ),
+          if (_error != null) _mensajeError(),
+          const SizedBox(height: 14),
+          _botonPrincipal('Crear cuenta', _cargando ? null : _crearCuenta),
+        ],
+      ),
+    );
+  }
+
+  Widget _mensajeError() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(color: Colors.red.withOpacity(0.08), borderRadius: BorderRadius.circular(10)),
+        child: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.redAccent, size: 16),
+            const SizedBox(width: 8),
+            Expanded(child: Text(_error!, style: const TextStyle(color: Colors.redAccent, fontSize: 12))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _botonPrincipal(String texto, VoidCallback? onPressed) {
     return SizedBox(
       height: 50,
       child: ElevatedButton(
