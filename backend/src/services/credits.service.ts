@@ -5,26 +5,33 @@ interface SolicitarCreditoInput {
   usuarioId: string;
   monto: number;
   motivo: string;
+  plazoDias: number;
 }
+
+/** Tasa de interés fija que se muestra en el resumen de la solicitud. */
+const TASA_INTERES = 0.10;
+
+const PLAZOS_VALIDOS = [7, 10, 15, 30];
 
 /**
- * Calcula un plan de pago diario simple: monto / N días.
- * N se ajusta según el monto (montos más altos -> más días para
- * que la cuota diaria se mantenga baja, como pide el modelo de negocio).
+ * Calcula el resumen del crédito con el plazo que eligió el usuario:
+ * interés fijo del 10%, total a pagar y cuota diaria sugerida
+ * (total / plazo). El plazo ya no se infiere del monto — lo decide
+ * el usuario en la pantalla "Solicitar crédito".
  */
-function calcularPlanDePago(monto: number) {
-  let dias: number;
-  if (monto <= 100) dias = 20;
-  else if (monto <= 250) dias = 30;
-  else dias = 45;
-
-  const pagoDiario = Math.ceil(monto / dias);
-  return { dias, pagoDiario };
+function calcularResumenCredito(monto: number, plazoDias: number) {
+  const interes = Number((monto * TASA_INTERES).toFixed(2));
+  const totalAPagar = Number((monto + interes).toFixed(2));
+  const pagoDiario = Number((totalAPagar / plazoDias).toFixed(2));
+  return { interes, totalAPagar, pagoDiario };
 }
 
-export async function solicitarCredito({ usuarioId, monto, motivo }: SolicitarCreditoInput) {
+export async function solicitarCredito({ usuarioId, monto, motivo, plazoDias }: SolicitarCreditoInput) {
   if (monto < 50 || monto > 500) {
     throw new Error('El monto debe estar entre S/ 50 y S/ 500');
+  }
+  if (!PLAZOS_VALIDOS.includes(plazoDias)) {
+    throw new Error(`El plazo debe ser uno de: ${PLAZOS_VALIDOS.join(', ')} días`);
   }
 
   // Regla simple de elegibilidad: no permitir un 2do crédito activo
@@ -39,9 +46,9 @@ export async function solicitarCredito({ usuarioId, monto, motivo }: SolicitarCr
     throw new Error('Ya tienes un crédito activo. Termina de pagarlo para solicitar otro.');
   }
 
-  const { dias, pagoDiario } = calcularPlanDePago(monto);
+  const { interes, totalAPagar, pagoDiario } = calcularResumenCredito(monto, plazoDias);
   const fechaFin = new Date();
-  fechaFin.setDate(fechaFin.getDate() + dias);
+  fechaFin.setDate(fechaFin.getDate() + plazoDias);
 
   const { data, error } = await supabaseAdmin
     .from('creditos')
@@ -49,10 +56,12 @@ export async function solicitarCredito({ usuarioId, monto, motivo }: SolicitarCr
       usuario_id: usuarioId,
       monto,
       motivo,
-      saldo_pendiente: monto,
+      interes,
+      total_a_pagar: totalAPagar,
+      saldo_pendiente: totalAPagar,
       pago_diario_sugerido: pagoDiario,
-      dias_totales: dias,
-      dias_restantes: dias,
+      dias_totales: plazoDias,
+      dias_restantes: plazoDias,
       fecha_fin_estimada: fechaFin.toISOString().split('T')[0],
       estado: 'activo',
     })

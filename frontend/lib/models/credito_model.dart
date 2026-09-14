@@ -7,6 +7,8 @@ class Credito {
   final int diasRestantes;
   final String estado;
   final String? motivo;
+  final double? interes;
+  final double? totalAPagar;
 
   Credito({
     required this.id,
@@ -17,6 +19,8 @@ class Credito {
     required this.diasRestantes,
     required this.estado,
     this.motivo,
+    this.interes,
+    this.totalAPagar,
   });
 
   factory Credito.fromJson(Map<String, dynamic> json) {
@@ -29,6 +33,8 @@ class Credito {
       diasRestantes: json['dias_restantes'] ?? 0,
       estado: json['estado'] ?? 'activo',
       motivo: json['motivo'],
+      interes: (json['interes'] as num?)?.toDouble(),
+      totalAPagar: (json['total_a_pagar'] as num?)?.toDouble(),
     );
   }
 

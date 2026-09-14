@@ -11,9 +11,14 @@ import {
 const router = Router();
 router.use(requireAuth);
 
+const PLAZOS_VALIDOS = [7, 10, 15, 30] as const;
+
 const solicitarSchema = z.object({
   monto: z.number().min(50).max(500),
   motivo: z.string().min(1),
+  plazoDias: z.number().refine((v) => (PLAZOS_VALIDOS as readonly number[]).includes(v), {
+    message: `El plazo debe ser uno de: ${PLAZOS_VALIDOS.join(', ')} días`,
+  }),
 });
 
 // POST /api/creditos  -> solicitar un crédito nuevo
@@ -26,6 +31,7 @@ router.post('/', async (req: AuthedRequest, res) => {
       usuarioId: req.userId!,
       monto: parsed.data.monto,
       motivo: parsed.data.motivo,
+      plazoDias: parsed.data.plazoDias,
     });
     res.status(201).json(credito);
   } catch (e: any) {

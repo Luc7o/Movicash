@@ -60,8 +60,8 @@ class ApiService {
   // -------- Créditos --------
   static Future<dynamic> creditoActivo() => _get('/creditos/activo');
   static Future<dynamic> historialCreditos() => _get('/creditos/historial');
-  static Future<dynamic> solicitarCredito(double monto, String motivo) =>
-      _post('/creditos', {'monto': monto, 'motivo': motivo});
+  static Future<dynamic> solicitarCredito(double monto, String motivo, int plazoDias) =>
+      _post('/creditos', {'monto': monto, 'motivo': motivo, 'plazoDias': plazoDias});
   static Future<dynamic> registrarPago(String creditoId, double monto) =>
       _post('/creditos/pago', {'creditoId': creditoId, 'monto': monto});
 
