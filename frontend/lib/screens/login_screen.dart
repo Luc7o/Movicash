@@ -27,6 +27,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   final _dniRegistroCtrl = TextEditingController();
   final _passRegistroCtrl = TextEditingController();
   final _passConfirmarCtrl = TextEditingController();
+  final _telefonoRegistroCtrl = TextEditingController();
+  final _correoRegistroCtrl = TextEditingController();
 
   bool _cargando = false;
   bool _verPassword = false;
@@ -52,6 +54,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     _dniRegistroCtrl.dispose();
     _passRegistroCtrl.dispose();
     _passConfirmarCtrl.dispose();
+    _telefonoRegistroCtrl.dispose();
+    _correoRegistroCtrl.dispose();
     super.dispose();
   }
 
@@ -113,6 +117,8 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
         dni: dni,
         password: _passRegistroCtrl.text,
         nombreCompleto: _nombreEncontrado!,
+        telefono: _telefonoRegistroCtrl.text.trim(),
+        correo: _correoRegistroCtrl.text.trim(),
       );
       if (res.session == null) {
         setState(() {
@@ -227,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                           animation: _tabController.animation ?? _tabController,
                           builder: (context, _) {
                             final t = (_tabController.animation?.value ?? _tabController.index.toDouble());
-                            final altura = ui.lerpDouble(300, 430, t.clamp(0, 1))!;
+                            final altura = ui.lerpDouble(300, 560, t.clamp(0, 1))!;
                             return Padding(
                               padding: const EdgeInsets.all(22),
                               child: SizedBox(
@@ -354,6 +360,26 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           ),
           const SizedBox(height: 8),
           _estadoVerificacionDni(),
+          const SizedBox(height: 14),
+          TextFormField(
+            controller: _telefonoRegistroCtrl,
+            keyboardType: TextInputType.phone,
+            decoration: const InputDecoration(
+              labelText: 'Teléfono de contacto',
+              prefixIcon: Icon(Icons.phone_outlined),
+            ),
+            validator: (v) => (v == null || v.trim().isEmpty) ? 'Ingresa tu teléfono' : null,
+          ),
+          const SizedBox(height: 14),
+          TextFormField(
+            controller: _correoRegistroCtrl,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
+              labelText: 'Correo de contacto',
+              prefixIcon: Icon(Icons.email_outlined),
+            ),
+            validator: (v) => (v == null || !v.contains('@')) ? 'Ingresa un correo válido' : null,
+          ),
           const SizedBox(height: 14),
           TextFormField(
             controller: _passRegistroCtrl,

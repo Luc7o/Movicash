@@ -45,6 +45,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       await ApiService.crearPerfil({
         'nombre': AuthService.nombreActual ?? '',
         'dni': AuthService.dniActual ?? '',
+        'telefono': AuthService.telefonoActual ?? '',
+        'correo': AuthService.correoActual ?? '',
         'ubicacion': _ubicacionCtrl.text.trim(),
         'ocupacion': _ocupacion ?? '',
       });
@@ -123,6 +125,28 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                       Text('DNI $dni', style: const TextStyle(color: MoviCashColors.textoGris, fontSize: 13)),
                     ],
                   ),
+                  if ((AuthService.telefonoActual ?? '').isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(Icons.phone_iphone_outlined, size: 16, color: MoviCashColors.textoGris),
+                        const SizedBox(width: 8),
+                        Text(AuthService.telefonoActual!,
+                            style: const TextStyle(color: MoviCashColors.textoGris, fontSize: 13)),
+                      ],
+                    ),
+                  ],
+                  if ((AuthService.correoActual ?? '').isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        const Icon(Icons.email_outlined, size: 16, color: MoviCashColors.textoGris),
+                        const SizedBox(width: 8),
+                        Text(AuthService.correoActual!,
+                            style: const TextStyle(color: MoviCashColors.textoGris, fontSize: 13)),
+                      ],
+                    ),
+                  ],
                 ],
               ),
 

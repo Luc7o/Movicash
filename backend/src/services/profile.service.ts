@@ -19,6 +19,8 @@ export async function obtenerPerfil(usuarioId: string) {
 export async function crearPerfil(usuarioId: string, email: string, campos: {
   nombre: string;
   dni?: string;
+  telefono?: string;
+  correo?: string;
   ubicacion?: string;
   ocupacion?: string;
 }) {
@@ -26,7 +28,8 @@ export async function crearPerfil(usuarioId: string, email: string, campos: {
     .from('usuarios')
     .upsert({
       id: usuarioId,
-      email,
+      email: campos.correo ?? email,
+      telefono: campos.telefono,
       nombre: campos.nombre,
       dni: campos.dni,
       ubicacion: campos.ubicacion,
@@ -44,6 +47,8 @@ interface ActualizarPerfilInput {
   ubicacion?: string;
   ocupacion?: string;
   dni?: string;
+  telefono?: string;
+  correo?: string;
 }
 
 export async function actualizarPerfil({ usuarioId, ...campos }: ActualizarPerfilInput) {
@@ -52,6 +57,8 @@ export async function actualizarPerfil({ usuarioId, ...campos }: ActualizarPerfi
   if (campos.ubicacion !== undefined) cambios.ubicacion = campos.ubicacion;
   if (campos.ocupacion !== undefined) cambios.ocupacion = campos.ocupacion;
   if (campos.dni !== undefined) cambios.dni = campos.dni;
+  if (campos.telefono !== undefined) cambios.telefono = campos.telefono;
+  if (campos.correo !== undefined) cambios.email = campos.correo;
 
   const { data, error } = await supabaseAdmin
     .from('usuarios')

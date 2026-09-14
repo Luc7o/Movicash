@@ -17,6 +17,8 @@ class _MyDataScreenState extends State<MyDataScreen> {
   final _ubicacionCtrl = TextEditingController();
   final _ocupacionCtrl = TextEditingController();
   final _dniCtrl = TextEditingController();
+  final _telefonoCtrl = TextEditingController();
+  final _correoCtrl = TextEditingController();
   bool _cargando = true;
   bool _guardando = false;
   String? _dniFotoPath;
@@ -34,6 +36,8 @@ class _MyDataScreenState extends State<MyDataScreen> {
       _ubicacionCtrl.text = perfil['ubicacion'] ?? '';
       _ocupacionCtrl.text = perfil['ocupacion'] ?? '';
       _dniCtrl.text = perfil['dni'] ?? '';
+      _telefonoCtrl.text = perfil['telefono'] ?? '';
+      _correoCtrl.text = perfil['email'] ?? '';
       _dniFotoPath = perfil['dni_foto_path'];
     } catch (_) {
     } finally {
@@ -51,6 +55,8 @@ class _MyDataScreenState extends State<MyDataScreen> {
         'nombre': _nombreCtrl.text,
         'ubicacion': _ubicacionCtrl.text,
         'ocupacion': _ocupacionCtrl.text,
+        'telefono': _telefonoCtrl.text,
+        'correo': _correoCtrl.text,
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Datos guardados ✓')));
@@ -105,6 +111,18 @@ class _MyDataScreenState extends State<MyDataScreen> {
               labelText: 'DNI (verificado con RENIEC)',
               suffixIcon: Icon(Icons.lock_outline, size: 18),
             ),
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: _telefonoCtrl,
+            keyboardType: TextInputType.phone,
+            decoration: const InputDecoration(labelText: 'Número de celular'),
+          ),
+          const SizedBox(height: 14),
+          TextField(
+            controller: _correoCtrl,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(labelText: 'Correo electrónico'),
           ),
           const SizedBox(height: 14),
           TextField(controller: _ubicacionCtrl, decoration: const InputDecoration(labelText: 'Ubicación')),
