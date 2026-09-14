@@ -83,3 +83,16 @@ export async function guardarFotoDni(usuarioId: string, storagePath: string) {
   if (error) throw error;
   return { ok: true };
 }
+
+/**
+ * Guarda la referencia a la foto de perfil que el usuario subió a
+ * Supabase Storage (bucket público "avatars").
+ */
+export async function guardarFotoPerfil(usuarioId: string, storagePath: string) {
+  const { error } = await supabaseAdmin
+    .from('usuarios')
+    .update({ foto_perfil_path: storagePath })
+    .eq('id', usuarioId);
+  if (error) throw error;
+  return { ok: true };
+}

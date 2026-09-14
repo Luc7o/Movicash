@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { AuthedRequest, requireAuth } from '../middleware/auth';
-import { obtenerPerfil, actualizarPerfil, crearPerfil, guardarFotoDni } from '../services/profile.service';
+import { obtenerPerfil, actualizarPerfil, crearPerfil, guardarFotoDni, guardarFotoPerfil } from '../services/profile.service';
 
 const router = Router();
 router.use(requireAuth);
@@ -65,6 +65,18 @@ router.post('/dni', async (req: AuthedRequest, res) => {
   if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
   try {
     res.json(await guardarFotoDni(req.userId!, parsed.data.storagePath));
+  } catch (e: any) {
+    res.status(400).json({ error: e.message });
+  }
+});
+
+const fotoPerfilSchema = z.object({ storagePath: z.string().min(1) });
+
+router.post('/foto', async (req: AuthedRequest, res) => {
+  const parsed = fotoPerfilSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+  try {
+    res.json(await guardarFotoPerfil(req.userId!, parsed.data.storagePath));
   } catch (e: any) {
     res.status(400).json({ error: e.message });
   }

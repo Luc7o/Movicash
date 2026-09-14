@@ -100,4 +100,6 @@ class ApiService {
   static Future<dynamic> actualizarPerfil(Map<String, dynamic> campos) => _put('/perfil', campos);
   static Future<dynamic> guardarFotoDni(String storagePath) =>
       _post('/perfil/dni', {'storagePath': storagePath});
+  static Future<dynamic> guardarFotoPerfil(String storagePath) =>
+      _post('/perfil/foto', {'storagePath': storagePath});
 }

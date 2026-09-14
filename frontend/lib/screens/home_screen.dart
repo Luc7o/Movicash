@@ -110,18 +110,62 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Text('Hola, $nombre 👋',
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              Row(
+                children: [
+                  CircleAvatar(
+                    radius: 22,
+                    backgroundColor: MoviCashColors.lilaInnovacion.withOpacity(0.14),
+                    child: Text(
+                      nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                        color: MoviCashColors.lilaInnovacion,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Hola, $nombre 👋',
+                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      const Text('¡Qué bueno verte de nuevo!',
+                          style: TextStyle(color: MoviCashColors.textoGris, fontSize: 12)),
+                    ],
+                  ),
+                ],
               ),
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.notifications_none, color: MoviCashColors.textoOscuro),
+              Container(
+                decoration: BoxDecoration(
+                  color: MoviCashColors.fondoSecundario,
+                  shape: BoxShape.circle,
+                ),
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.notifications_none, color: MoviCashColors.textoOscuro),
+                    ),
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: MoviCashColors.rosaComunidad,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-          const Text('¡Qué bueno verte de nuevo!', style: TextStyle(color: MoviCashColors.textoGris)),
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
 
           GestureDetector(
             onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MoviscoreScreen())),
@@ -130,14 +174,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(18),
                 child: Row(
                   children: [
-                    Container(
-                      width: 46,
-                      height: 46,
-                      decoration: BoxDecoration(
-                        color: MoviCashColors.lilaInnovacion.withOpacity(0.12),
-                        shape: BoxShape.circle,
+                    SizedBox(
+                      width: 54,
+                      height: 54,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          SizedBox(
+                            width: 54,
+                            height: 54,
+                            child: CircularProgressIndicator(
+                              value: (((score as num).toDouble() - 300) / (850 - 300)).clamp(0.05, 1.0),
+                              strokeWidth: 4.5,
+                              backgroundColor: MoviCashColors.lilaInnovacion.withOpacity(0.12),
+                              valueColor:
+                                  const AlwaysStoppedAnimation(MoviCashColors.lilaInnovacion),
+                            ),
+                          ),
+                          const Icon(Icons.verified_outlined,
+                              color: MoviCashColors.lilaInnovacion, size: 22),
+                        ],
                       ),
-                      child: const Icon(Icons.verified_outlined, color: MoviCashColors.lilaInnovacion),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -161,56 +218,95 @@ class _HomeScreenState extends State<HomeScreen> {
 
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              gradient: _creditoActivo == null
+                  ? const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [MoviCashColors.verdeMenta, Color(0xFF047857)],
+                    )
+                  : null,
+              color: _creditoActivo == null ? null : Colors.white,
               borderRadius: BorderRadius.circular(24),
-              boxShadow: [BoxShadow(color: MoviCashColors.textoOscuro.withOpacity(0.05), blurRadius: 16, offset: const Offset(0, 6))],
+              boxShadow: [
+                BoxShadow(
+                  color: (_creditoActivo == null ? MoviCashColors.verdeMenta : MoviCashColors.textoOscuro)
+                      .withOpacity(_creditoActivo == null ? 0.28 : 0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Stack(
               children: [
-                if (_creditoActivo == null) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                if (_creditoActivo == null)
+                  Positioned(
+                    right: -18,
+                    top: -18,
+                    child: Icon(Icons.bolt_rounded, size: 110, color: Colors.white.withOpacity(0.10)),
+                  ),
+                Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Crédito disponible', style: TextStyle(color: MoviCashColors.textoGris)),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: MoviCashColors.verdeMenta.withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(999),
+                      if (_creditoActivo == null) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Crédito disponible', style: TextStyle(color: Colors.white70)),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.18),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: const Text('Desembolso ya',
+                                  style: TextStyle(
+                                      fontSize: 11, fontWeight: FontWeight.w700, color: Colors.white)),
+                            ),
+                          ],
                         ),
-                        child: const Text('Desembolso ya',
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: MoviCashColors.verdeMenta)),
-                      ),
+                        const SizedBox(height: 6),
+                        Text('S/ $credMin – S/ $credMax',
+                            style: displayCurrency(size: 30).copyWith(color: Colors.white)),
+                        const SizedBox(height: 14),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: MoviCashColors.verdeMenta,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
+                            ),
+                            onPressed: () async {
+                              await Navigator.push(context,
+                                  MaterialPageRoute(builder: (_) => const RequestCreditScreen()));
+                              _cargarDatos();
+                            },
+                            child: const Text('Solicitar crédito  →', style: TextStyle(fontWeight: FontWeight.w700)),
+                          ),
+                        ),
+                      ] else ...[
+                        const Text('Crédito activo', style: TextStyle(color: MoviCashColors.textoGris)),
+                        Text('S/ ${_creditoActivo!['saldo_pendiente']} pendiente', style: displayCurrency(size: 24)),
+                        const SizedBox(height: 4),
+                        Text('Pago diario sugerido: S/ ${_creditoActivo!['pago_diario_sugerido']}',
+                            style: const TextStyle(color: MoviCashColors.textoGris)),
+                        const SizedBox(height: 12),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: LinearProgressIndicator(
+                            value: _progresoCredito(),
+                            minHeight: 6,
+                            backgroundColor: MoviCashColors.lilaInnovacion.withOpacity(0.12),
+                            valueColor: const AlwaysStoppedAnimation(MoviCashColors.lilaInnovacion),
+                          ),
+                        ),
+                      ]
                     ],
                   ),
-                  const SizedBox(height: 6),
-                  Text('S/ $credMin – S/ $credMax', style: displayCurrency(size: 30)),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 52,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: MoviCashColors.verdeMenta,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-                      ),
-                      onPressed: () async {
-                        await Navigator.push(context,
-                            MaterialPageRoute(builder: (_) => const RequestCreditScreen()));
-                        _cargarDatos();
-                      },
-                      child: const Text('Solicitar crédito  →', style: TextStyle(fontWeight: FontWeight.w700)),
-                    ),
-                  ),
-                ] else ...[
-                  const Text('Crédito activo', style: TextStyle(color: MoviCashColors.textoGris)),
-                  Text('S/ ${_creditoActivo!['saldo_pendiente']} pendiente', style: displayCurrency(size: 24)),
-                  const SizedBox(height: 4),
-                  Text('Pago diario sugerido: S/ ${_creditoActivo!['pago_diario_sugerido']}',
-                      style: const TextStyle(color: MoviCashColors.textoGris)),
-                ]
+                ),
               ],
             ),
           ),
@@ -232,41 +328,43 @@ class _HomeScreenState extends State<HomeScreen> {
 
           if (_creditoActivo != null) ...[
             const SizedBox(height: 20),
-            Card(
-              color: MoviCashColors.amarilloPastel.withOpacity(0.18),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: MoviCashColors.amarilloPastel.withOpacity(0.4),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.calendar_today_outlined, size: 18, color: MoviCashColors.textoOscuro),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: MoviCashColors.amarilloClaro,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: MoviCashColors.amarilloPastel.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: MoviCashColors.amarilloPastel.withOpacity(0.4),
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Próximo pago', style: TextStyle(color: MoviCashColors.textoGris)),
-                        Text('S/ ${_creditoActivo!['pago_diario_sugerido']}',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () async {
-                        await Navigator.push(
-                            context, MaterialPageRoute(builder: (_) => const MyCreditScreen()));
-                        _cargarDatos();
-                      },
-                      child: const Text('Pagar ahora'),
-                    ),
-                  ],
-                ),
+                    child: const Icon(Icons.calendar_today_outlined, size: 18, color: MoviCashColors.textoOscuro),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Próximo pago', style: TextStyle(color: MoviCashColors.textoGris)),
+                      Text('S/ ${_creditoActivo!['pago_diario_sugerido']}',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () async {
+                      await Navigator.push(
+                          context, MaterialPageRoute(builder: (_) => const MyCreditScreen()));
+                      _cargarDatos();
+                    },
+                    child: const Text('Pagar ahora'),
+                  ),
+                ],
               ),
             ),
           ],
@@ -275,17 +373,31 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  double _progresoCredito() {
+    if (_creditoActivo == null) return 0;
+    final total = (_creditoActivo!['dias_totales'] as num?)?.toDouble() ?? 0;
+    final restantes = (_creditoActivo!['dias_restantes'] as num?)?.toDouble() ?? 0;
+    if (total == 0) return 0;
+    return ((total - restantes) / total).clamp(0, 1);
+  }
+
   Widget _accesoRapido(IconData icon, String label, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 26,
-            backgroundColor: color.withOpacity(0.14),
-            child: Icon(icon, color: color),
+          Container(
+            width: 56,
+            height: 56,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.12),
+              shape: BoxShape.circle,
+              boxShadow: [BoxShadow(color: color.withOpacity(0.15), blurRadius: 10, offset: const Offset(0, 4))],
+            ),
+            child: Icon(icon, color: color, size: 24),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
         ],
       ),
