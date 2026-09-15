@@ -129,64 +129,132 @@ class _MyDataScreenState extends State<MyDataScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Mis datos')),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
         children: [
-          TextField(
-            controller: _nombreCtrl,
-            enabled: false,
-            decoration: const InputDecoration(
-              labelText: 'Nombre completo (verificado con RENIEC)',
-              suffixIcon: Icon(Icons.lock_outline, size: 18),
+          _seccionTitulo('Identidad verificada'),
+          _card(
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(color: MoviCashColors.verdeMenta.withOpacity(0.13), shape: BoxShape.circle),
+                      child: const Icon(Icons.verified_user_outlined, color: MoviCashColors.verdeMenta, size: 20),
+                    ),
+                    const SizedBox(width: 10),
+                    const Expanded(
+                      child: Text('Estos datos vienen verificados con RENIEC y no se pueden editar',
+                          style: TextStyle(fontSize: 12, color: MoviCashColors.textoGris)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: _nombreCtrl,
+                  enabled: false,
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre completo',
+                    suffixIcon: Icon(Icons.lock_outline, size: 18),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: _dniCtrl,
+                  enabled: false,
+                  decoration: const InputDecoration(
+                    labelText: 'DNI',
+                    suffixIcon: Icon(Icons.lock_outline, size: 18),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 14),
-          TextField(
-            controller: _dniCtrl,
-            enabled: false,
-            decoration: const InputDecoration(
-              labelText: 'DNI (verificado con RENIEC)',
-              suffixIcon: Icon(Icons.lock_outline, size: 18),
+          const SizedBox(height: 22),
+          _seccionTitulo('Contacto'),
+          _card(
+            child: Column(
+              children: [
+                TextField(
+                  controller: _telefonoCtrl,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(labelText: 'Número de celular'),
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: _correoCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(labelText: 'Correo electrónico'),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 14),
-          TextField(
-            controller: _telefonoCtrl,
-            keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(labelText: 'Número de celular'),
+          const SizedBox(height: 22),
+          _seccionTitulo('Trabajo'),
+          _card(
+            child: Column(
+              children: [
+                TextField(controller: _ubicacionCtrl, decoration: const InputDecoration(labelText: 'Ubicación')),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: _ocupacionCtrl,
+                  decoration: const InputDecoration(labelText: 'Ocupación (ej. mototaxista, delivery)'),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 14),
-          TextField(
-            controller: _correoCtrl,
-            keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(labelText: 'Correo electrónico'),
-          ),
-          const SizedBox(height: 14),
-          TextField(controller: _ubicacionCtrl, decoration: const InputDecoration(labelText: 'Ubicación')),
-          const SizedBox(height: 14),
-          TextField(
-            controller: _ocupacionCtrl,
-            decoration: const InputDecoration(labelText: 'Ocupación (ej. mototaxista, delivery)'),
-          ),
-          const SizedBox(height: 24),
-          const Text('Verificación de identidad', style: TextStyle(fontWeight: FontWeight.w600)),
-          const SizedBox(height: 8),
-          Card(
-            color: _dniFotoPath != null
-                ? MoviCashColors.verdeMenta.withValues(alpha: 0.1)
-                : MoviCashColors.amarilloPastel.withValues(alpha: 0.15),
-            child: ListTile(
-              leading: Icon(
-                _dniFotoPath != null ? Icons.check_circle : Icons.camera_alt_outlined,
-                color: _dniFotoPath != null ? MoviCashColors.verdeMenta : MoviCashColors.textoOscuro,
+          const SizedBox(height: 22),
+          _seccionTitulo('Verificación de identidad'),
+          Container(
+            decoration: BoxDecoration(
+              color: _dniFotoPath != null
+                  ? MoviCashColors.verdeMenta.withOpacity(0.08)
+                  : MoviCashColors.amarilloClaro,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: (_dniFotoPath != null ? MoviCashColors.verdeMenta : MoviCashColors.amarilloPastel)
+                    .withOpacity(0.25),
               ),
-              title: Text(_dniFotoPath != null ? 'Foto de DNI subida' : 'Sube una foto de tu DNI'),
-              subtitle: const Text('Ayuda a que tu solicitud de crédito se procese más rápido'),
-              trailing: TextButton(onPressed: _subirFotoDni, child: const Text('Subir foto')),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: (_dniFotoPath != null ? MoviCashColors.verdeMenta : MoviCashColors.amarilloPastel)
+                        .withOpacity(0.16),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _dniFotoPath != null ? Icons.check_circle : Icons.camera_alt_outlined,
+                    color: _dniFotoPath != null ? MoviCashColors.verdeMenta : MoviCashColors.textoOscuro,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(_dniFotoPath != null ? 'Foto de DNI subida' : 'Sube una foto de tu DNI',
+                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                      const Text('Ayuda a que tu solicitud de crédito se procese más rápido',
+                          style: TextStyle(fontSize: 11, color: MoviCashColors.textoGris)),
+                    ],
+                  ),
+                ),
+                TextButton(onPressed: _subirFotoDni, child: const Text('Subir')),
+              ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 26),
           SizedBox(
             width: double.infinity,
+            height: 52,
             child: ElevatedButton(
               onPressed: _guardando ? null : _guardar,
               child: _guardando
@@ -196,6 +264,28 @@ class _MyDataScreenState extends State<MyDataScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _seccionTitulo(String texto) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Text(texto, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+    );
+  }
+
+  Widget _card({required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MoviCashColors.superficieBlanca,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(color: MoviCashColors.textoOscuro.withOpacity(0.04), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
+      ),
+      child: child,
     );
   }
 }
