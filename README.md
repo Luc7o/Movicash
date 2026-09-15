@@ -11,7 +11,12 @@ movicash/
 ## 1. Configurar Supabase (5 min)
 
 1. Crea un proyecto en https://supabase.com
-2. Ve a **SQL Editor** y pega todo el contenido de `database/schema.sql`. Ejecútalo.
+2. Ve a **SQL Editor** y ejecuta, en este orden, el contenido de:
+   1. `database/schema.sql` — esquema base
+   2. `database/migration_kyc.sql` — foto de DNI (bucket privado `kyc-documents`)
+   3. `database/migration_plazo_interes.sql` — plazo de pago elegible + interés (10%) y total a pagar en `creditos`
+   4. `database/migration_avatar.sql` — foto de perfil (bucket público `avatars`)
+   5. `database/seed.sql` — datos de ejemplo para el marketplace
 3. Ve a **Authentication > Providers** y activa **Phone** (necesitas configurar un proveedor SMS como Twilio, o usar el modo de pruebas de Supabase para desarrollo).
 4. Ve a **Project Settings > API** y copia:
    - `Project URL`
@@ -34,13 +39,21 @@ curl http://localhost:4000/health
 ```
 
 Endpoints principales:
-- `POST /api/creditos` — solicitar crédito `{ monto, motivo }`
+- `POST /api/creditos` — solicitar crédito `{ monto, motivo, plazoDias }` (`plazoDias` es uno de 7 / 10 / 15 / 30; el interés es fijo del 10% y se calcula en el backend)
 - `GET  /api/creditos/activo` — crédito en curso
+- `GET  /api/creditos/historial` — historial de créditos
 - `POST /api/creditos/pago` — registrar pago diario `{ creditoId, monto }`
-- `GET  /api/moviscore` — score actual + historial
+- `GET  /api/moviscore` — score actual + historial + crédito disponible
 - `GET  /api/circulos/mios` — mis círculos de ahorro
+- `GET  /api/circulos/mis-aportes` — mis aportes a círculos
+- `GET  /api/circulos/disponibles` — círculos abiertos para unirse
 - `POST /api/circulos` — crear círculo `{ nombre, gremio, montoPorTurno }`
+- `POST /api/circulos/:id/unirse` — unirse a un círculo
 - `POST /api/circulos/:id/aportar` — aportar a un círculo `{ monto }`
+- `GET  /api/perfil` — datos del usuario
+- `POST /api/perfil` / `PUT /api/perfil` — crear/actualizar datos del usuario
+- `POST /api/perfil/dni` — guardar referencia a la foto de DNI subida a `kyc-documents` `{ storagePath }`
+- `POST /api/perfil/foto` — guardar referencia a la foto de perfil subida a `avatars` `{ storagePath }`
 
 Todas las rutas (excepto `/health`) requieren el header:
 `Authorization: Bearer <access_token_de_supabase>`
@@ -80,11 +93,17 @@ Este diseño evita que un usuario pueda, por ejemplo, escribir directo en la tab
 `creditos` desde la app y subirse su propio MoviScore — toda esa lógica vive
 solo en el backend.
 
-## 5. Próximos pasos sugeridos
+## 5. Estado del despliegue
+
+- El backend ya está desplegado en **Render** (`render.yaml` incluido en la raíz del proyecto).
+- El frontend se está probando con un APK de release generado manualmente (aún no está en una tienda de apps).
+
+## 6. Próximos pasos sugeridos
 
 - Conectar una pasarela de pagos real (Culqi/Niubiz) o interoperabilidad con
   Yape/Plin para el cobro/desembolso de dinero real.
-- Agregar Supabase Storage para fotos de DNI (verificación KYC básica).
 - Agregar notificaciones push (Firebase Cloud Messaging) para recordar el
   pago diario.
 - Endurecer el motor de MoviScore con más señales (atrasos, frecuencia de uso).
+- Salir del modo de pruebas de OTP de Supabase (actualmente usa un número de
+  prueba con código fijo `123456` por las restricciones de la cuenta trial de Twilio).

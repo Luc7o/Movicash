@@ -36,9 +36,11 @@ create table creditos (
   usuario_id uuid references usuarios(id) on delete cascade not null,
   monto numeric not null check (monto between 50 and 500),
   motivo text,                    -- combustible / repuestos / mercadería / otros
-  saldo_pendiente numeric not null,
+  interes numeric,                -- 10% fijo del monto (elegido en el resumen de la solicitud)
+  total_a_pagar numeric,          -- monto + interes
+  saldo_pendiente numeric not null, -- para créditos nuevos, arranca igual a total_a_pagar
   pago_diario_sugerido numeric not null,
-  dias_totales int not null,
+  dias_totales int not null,      -- plazo elegido por el usuario: 7 / 10 / 15 / 30
   dias_restantes int not null,
   fecha_inicio date default current_date,
   fecha_fin_estimada date,

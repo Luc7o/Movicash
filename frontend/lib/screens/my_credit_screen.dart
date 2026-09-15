@@ -57,6 +57,14 @@ class _MyCreditScreenState extends State<MyCreditScreen> {
     }
   }
 
+  /// Formatea un valor numérico proveniente del backend (puede llegar
+  /// como num o como String, según el driver de Supabase) a "S/ 121.0".
+  String _money(dynamic value) {
+    if (value == null) return 'S/ —';
+    final n = value is num ? value : num.tryParse('$value') ?? 0;
+    return 'S/ ${n.toStringAsFixed(n == n.roundToDouble() ? 0 : 1)}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,12 +98,18 @@ class _MyCreditScreenState extends State<MyCreditScreen> {
                             const SizedBox(height: 8),
                             Text('S/ ${_activo!['monto']}',
                                 style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Total a pagar ${_money(_activo!['total_a_pagar'])}'
+                              '${_activo!['interes'] != null ? ' (incluye ${_money(_activo!['interes'])} de interés)' : ''}',
+                              style: const TextStyle(color: MoviCashColors.textoGris, fontSize: 12),
+                            ),
+                            const SizedBox(height: 14),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 _dato('Fecha de inicio', '${_activo!['fecha_inicio']}'),
-                                _dato('Pago diario', 'S/ ${_activo!['pago_diario_sugerido']}'),
+                                _dato('Pago diario', _money(_activo!['pago_diario_sugerido'])),
                               ],
                             ),
                             const SizedBox(height: 10),
@@ -119,7 +133,7 @@ class _MyCreditScreenState extends State<MyCreditScreen> {
                               child: ElevatedButton(
                                 onPressed: _pagarHoy,
                                 style: ElevatedButton.styleFrom(backgroundColor: MoviCashColors.verdeMenta),
-                                child: Text('Pagar S/ ${_activo!['pago_diario_sugerido']} hoy'),
+                                child: Text('Pagar ${_money(_activo!['pago_diario_sugerido'])} hoy'),
                               ),
                             ),
                           ],
@@ -174,7 +188,8 @@ class _MyCreditScreenState extends State<MyCreditScreen> {
                                 color: MoviCashColors.textoOscuro, size: 20),
                           ),
                           title: const Text('Crédito completado'),
-                          subtitle: Text('S/ ${c['monto']}  •  ${c['fecha_inicio']}'),
+                          subtitle: Text(
+                              '${_money(c['total_a_pagar'] ?? c['monto'])}  •  ${c['fecha_inicio']}'),
                           trailing: Chip(
                             label: const Text('Pagado'),
                             backgroundColor: MoviCashColors.verdeMenta.withValues(alpha: 0.15),
