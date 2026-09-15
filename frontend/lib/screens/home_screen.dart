@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/theme.dart';
+import '../config/supabase_config.dart';
 import '../services/api_service.dart';
 import '../widgets/bottom_nav.dart';
 import 'request_credit_screen.dart';
@@ -24,6 +25,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic>? _perfil;
   bool _cargando = true;
   String? _error;
+
+  String? get _fotoPerfilUrl {
+    final path = _perfil?['foto_perfil_path'] as String?;
+    if (path == null) return null;
+    return supabase.storage.from('avatars').getPublicUrl(path);
+  }
 
   @override
   void initState() {
@@ -112,16 +119,22 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 22,
-                    backgroundColor: MoviCashColors.lilaInnovacion.withOpacity(0.14),
-                    child: Text(
-                      nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                        color: MoviCashColors.lilaInnovacion,
-                      ),
+                  GestureDetector(
+                    onTap: () => setState(() => _tab = 3),
+                    child: CircleAvatar(
+                      radius: 22,
+                      backgroundColor: MoviCashColors.lilaInnovacion.withOpacity(0.14),
+                      backgroundImage: _fotoPerfilUrl != null ? NetworkImage(_fotoPerfilUrl!) : null,
+                      child: _fotoPerfilUrl == null
+                          ? Text(
+                              nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                                color: MoviCashColors.lilaInnovacion,
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                   const SizedBox(width: 12),

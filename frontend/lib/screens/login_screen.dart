@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -229,26 +228,19 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                             ],
                           ),
                         ),
-                        AnimatedBuilder(
-                          animation: _tabController.animation ?? _tabController,
-                          builder: (context, _) {
-                            final t = (_tabController.animation?.value ?? _tabController.index.toDouble());
-                            final altura = ui.lerpDouble(300, 560, t.clamp(0, 1))!;
-                            return Padding(
-                              padding: const EdgeInsets.all(22),
-                              child: SizedBox(
-                                height: altura,
-                                child: TabBarView(
-                                  controller: _tabController,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  children: [
-                                    _formularioLogin(),
-                                    _formularioRegistro(),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 220),
+                          curve: Curves.easeInOut,
+                          alignment: Alignment.topCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.all(22),
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 180),
+                              child: _tabController.index == 0
+                                  ? _formularioLogin()
+                                  : _formularioRegistro(),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -295,7 +287,9 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   }
 
   Widget _formularioLogin() {
-    return Form(
+    return KeyedSubtree(
+      key: const ValueKey('form-login'),
+      child: Form(
       key: _formKeyLogin,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -341,11 +335,14 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           _botonPrincipal('Iniciar sesión', _cargando ? null : _iniciarSesion),
         ],
       ),
+      ),
     );
   }
 
   Widget _formularioRegistro() {
-    return Form(
+    return KeyedSubtree(
+      key: const ValueKey('form-registro'),
+      child: Form(
       key: _formKeyRegistro,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -406,6 +403,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
           const SizedBox(height: 14),
           _botonPrincipal('Crear cuenta', _cargando ? null : _crearCuenta),
         ],
+      ),
       ),
     );
   }

@@ -44,17 +44,38 @@ class _CirclesScreenState extends State<CirclesScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Crear círculo de ahorro'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: nombreCtrl, decoration: const InputDecoration(labelText: 'Nombre del círculo')),
-            TextField(controller: gremioCtrl, decoration: const InputDecoration(labelText: 'Gremio (ej. Mototaxistas)')),
-            TextField(
-              controller: montoCtrl,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Monto por turno (S/)'),
-            ),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: nombreCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre del círculo',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: gremioCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Gremio (ej. Mototaxistas)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: montoCtrl,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Monto por turno (S/)',
+                  prefixText: 'S/ ',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
