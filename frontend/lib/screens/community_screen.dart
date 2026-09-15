@@ -105,7 +105,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
               const SizedBox(height: 6),
               ..._misCirculos.take(2).map((m) {
                 final circulo = m['circulos_ahorro'];
-                return Container(
+                return GestureDetector(
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CirclesScreen())),
+                  child: Container(
                   margin: const EdgeInsets.only(bottom: 10),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
@@ -140,6 +142,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                       ),
                       const Icon(Icons.chevron_right, color: MoviCashColors.textoGris),
                     ],
+                  ),
                   ),
                 );
               }),
