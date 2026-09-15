@@ -45,12 +45,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return supabase.storage.from('avatars').getPublicUrl(_fotoPerfilPath!);
   }
 
-  /// Elige una foto de la galería (no de la cámara, a diferencia de la
-  /// foto de DNI) y la sube al bucket público "avatars".
+  /// Muestra una hoja simple para elegir entre tomar una foto nueva con la
+  /// cámara o escoger una ya existente de la galería.
+  Future<ImageSource?> _elegirFuenteImagen() {
+    return showModalBottomSheet<ImageSource>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Tomar foto'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.image_outlined),
+              title: const Text('Elegir de la galería'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Permite elegir una foto (cámara o galería) y la sube al bucket público
+  /// "avatars".
   Future<void> _cambiarFotoPerfil() async {
+    final fuente = await _elegirFuenteImagen();
+    if (fuente == null) return;
+
     final picker = ImagePicker();
     final foto = await picker.pickImage(
-      source: ImageSource.gallery,
+      source: fuente,
       imageQuality: 70,
       maxWidth: 800,
     );
@@ -148,7 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               TextButton.icon(
                 onPressed: _subiendoFoto ? null : _cambiarFotoPerfil,
                 icon: const Icon(Icons.image_outlined, size: 16),
-                label: Text(_fotoPerfilUrl != null ? 'Cambiar foto' : 'Elegir foto de galería'),
+                label: Text(_fotoPerfilUrl != null ? 'Cambiar foto' : 'Agregar foto de perfil'),
               ),
             ],
           ),

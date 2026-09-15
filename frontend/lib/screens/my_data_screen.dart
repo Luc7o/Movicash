@@ -48,11 +48,10 @@ class _MyDataScreenState extends State<MyDataScreen> {
   Future<void> _guardar() async {
     setState(() => _guardando = true);
     try {
-      // El DNI ya no se edita aquí: es el identificador con el que el
-      // usuario inicia sesión (verificado una sola vez contra RENIEC
-      // durante el registro).
+      // El nombre y el DNI no se editan aquí: el nombre viene verificado
+      // junto con el DNI contra RENIEC durante el registro, así que ambos
+      // quedan fijos para mantener la identidad verificada.
       await ApiService.actualizarPerfil({
-        'nombre': _nombreCtrl.text,
         'ubicacion': _ubicacionCtrl.text,
         'ocupacion': _ocupacionCtrl.text,
         'telefono': _telefonoCtrl.text,
@@ -68,11 +67,41 @@ class _MyDataScreenState extends State<MyDataScreen> {
     }
   }
 
+  /// Muestra una hoja simple para elegir entre tomar una foto nueva con la
+  /// cámara o escoger una ya existente de la galería.
+  Future<ImageSource?> _elegirFuenteImagen() {
+    return showModalBottomSheet<ImageSource>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Tomar foto'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.image_outlined),
+              title: const Text('Elegir de la galería'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// Sube la foto del DNI a Supabase Storage (bucket privado "kyc-documents")
   /// y guarda solo la referencia en el backend. Base sencilla de KYC.
   Future<void> _subirFotoDni() async {
+    final fuente = await _elegirFuenteImagen();
+    if (fuente == null) return;
+
     final picker = ImagePicker();
-    final foto = await picker.pickImage(source: ImageSource.camera, imageQuality: 70);
+    final foto = await picker.pickImage(source: fuente, imageQuality: 70);
     if (foto == null) return;
 
     setState(() => _guardando = true);
@@ -102,7 +131,14 @@ class _MyDataScreenState extends State<MyDataScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          TextField(controller: _nombreCtrl, decoration: const InputDecoration(labelText: 'Nombre completo')),
+          TextField(
+            controller: _nombreCtrl,
+            enabled: false,
+            decoration: const InputDecoration(
+              labelText: 'Nombre completo (verificado con RENIEC)',
+              suffixIcon: Icon(Icons.lock_outline, size: 18),
+            ),
+          ),
           const SizedBox(height: 14),
           TextField(
             controller: _dniCtrl,
@@ -145,7 +181,7 @@ class _MyDataScreenState extends State<MyDataScreen> {
               ),
               title: Text(_dniFotoPath != null ? 'Foto de DNI subida' : 'Sube una foto de tu DNI'),
               subtitle: const Text('Ayuda a que tu solicitud de crédito se procese más rápido'),
-              trailing: TextButton(onPressed: _subirFotoDni, child: const Text('Tomar foto')),
+              trailing: TextButton(onPressed: _subirFotoDni, child: const Text('Subir foto')),
             ),
           ),
           const SizedBox(height: 24),
