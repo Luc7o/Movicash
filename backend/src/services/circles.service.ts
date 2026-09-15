@@ -98,7 +98,7 @@ export async function registrarAporte({ usuarioId, circuloId, monto }: AportarIn
 export async function misCirculos(usuarioId: string) {
   const { data, error } = await supabaseAdmin
     .from('miembros_circulo')
-    .select('*, circulos_ahorro(*)')
+    .select('*, circulos_ahorro(*, miembros_circulo(count))')
     .eq('usuario_id', usuarioId);
   if (error) throw error;
   return data;
